@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fenix Flight Simulator</title>
+    
+    <link rel="icon" href="https://imgur.com/MFojTH8.png" type="image/png">
+    
     <style>
         /* Stylistyka inspirowana Microsoft Flight Simulator 2024 */
         * {
@@ -150,7 +153,7 @@
             z-index: 1;
         }
 
-        /* Interfejs UI - Górny Lewy Róg */
+        /* Interfejs UI - Górny Lewy Róg (Zaktualizowany układ z logo) */
         .brand-corner {
             position: absolute;
             top: 40px;
@@ -160,11 +163,26 @@
             transform: translateX(-30px);
             opacity: 0;
             transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+            /* Flexbox do ustawienia logo obok tekstu */
+            display: flex;
+            align-items: center;
+            gap: 15px; 
         }
 
         .brand-corner.visible {
             transform: translateX(0);
             opacity: 1;
+        }
+
+        .brand-logo {
+            width: 65px; /* Szerokość logo, możesz dostosować */
+            height: auto;
+            filter: drop-shadow(0px 0px 8px rgba(0, 168, 255, 0.3)); /* Lekki blask pod logo */
+        }
+
+        .brand-text-container {
+            display: flex;
+            flex-direction: column;
         }
 
         .brand-title {
@@ -276,7 +294,7 @@
             50% { opacity: 1; }
         }
 
-        /* Popup Błędu (Zgodnie z życzeniem po 10 sekundach gry) */
+        /* Popup Błędu */
         #error-popup {
             position: fixed;
             top: 0;
@@ -392,13 +410,16 @@
         </div>
 
         <div class="brand-corner" id="ui-brand">
-            <div class="brand-title">Fenix Flight Simulator</div>
-            <div class="brand-subtitle">By: Fenix Studios 2026</div>
+            <img src="https://imgur.com/MFojTH8.png" alt="Fenix Logo" class="brand-logo">
+            <div class="brand-text-container">
+                <div class="brand-title">Fenix Flight Simulator</div>
+                <div class="brand-subtitle">By: Fenix Studios 2026</div>
+            </div>
         </div>
 
         <div class="bottom-container">
             <div class="trivia-box" id="ui-trivia">
-                <div class="trivia-label">Czy wiedziałeś? / Wskazówka</div>
+                <div class="trivia-label">Ciekawostka</div>
                 <div class="trivia-content" id="trivia-text">Inicjalizacja systemów nawigacji satelitarnej GPS...</div>
             </div>
 
@@ -415,14 +436,13 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 Połączenie przerwane
             </div>
-            <div class="error-title">Błąd krytyczny aplikacji</div>
-            <div class="error-msg">kod błędu 102 - gra nie jest jeszcze przeznaczona do użytku.</div>
-            <button class="error-btn" onclick="window.close(); alert('Zamknij kartę przeglądarki, aby wyjść.');">Wyjdź do pulpitu</button>
+            <div class="error-title">KOD BŁĘDU 102</div>
+            <div class="error-msg">Gra nie jest jeszcze przeznaczona do użytku.</div>
+            <button class="error-btn" onclick="window.close(); alert('@Fenixstudios2026');">Wyjdź do pulpitu</button>
         </div>
     </div>
 
     <script>
-        // Lista 10 profesjonalnych ciekawostek/wskazówek lotniczych
         const triviaList = [
             "Najdłuższy komercyjny lot bez międzylądowania na świecie trwa ponad 18 godzin, łącząc Singapur z Nowym Jorkiem.",
             "Przed rozpoczęciem kołowania zawsze upewnij się, że ustawione ciśnienie barometryczne (Altimeter) zgadza się z aktualnym komunikatem ATIS.",
@@ -448,8 +468,13 @@
             startOverlay.style.opacity = '0';
             setTimeout(() => startOverlay.style.display = 'none', 1000);
 
-            // Spróbuj odtworzyć muzykę (zabezpieczone przed restrykcjami przeglądarek)
+            // Spróbuj odtworzyć muzykę
             music.play().catch(error => console.log("Odtwarzanie audio zablokowane lub przerwane: ", error));
+
+            // ZMIANA: Timer na błąd rusza DOKŁADNIE w momencie kliknięcia
+            setTimeout(() => {
+                document.getElementById('error-popup').classList.add('show');
+            }, 60000);
 
             // Uruchom sekwencję Intro
             setTimeout(() => {
@@ -463,13 +488,13 @@
                     introText.classList.add('fade-in');
                 }, 1000);
 
-                // Napis wyświetla się przez 3 sekundy, potem znika (łącznie 4 sekundy)
+                // Napis wyświetla się przez 3 sekundy, potem znika
                 setTimeout(() => {
                     introText.classList.remove('fade-in');
                     introScreen.style.opacity = '0';
                 }, 4000);
 
-                // Po 1 sekundzie od całkowitego zniknięcia intro (czyli w 6.5 sekundzie od startu) wchodzi główny ekran
+                // Wejście głównego ekranu
                 setTimeout(() => {
                     launchMainLoadingScreen();
                 }, 5500);
@@ -490,11 +515,6 @@
             // Uruchom pętle pokazu slajdów oraz rotacji ciekawostek
             startSlideshow();
             startTriviaRotation();
-
-            // Odliczanie 10 sekund do pojawienia się błędu (zgodnie z instrukcją)
-            setTimeout(() => {
-                document.getElementById('error-popup').classList.add('show');
-            }, 10000);
         }
 
         // Pętla pokazu slajdów (płynne przenikanie crossfade co 6 sekund)
@@ -518,7 +538,7 @@
                     triviaIndex = (triviaIndex + 1) % triviaList.length;
                     triviaTextEl.textContent = triviaList[triviaIndex];
                     triviaTextEl.style.opacity = '1';
-                }, 500);
+                }, 900);
             }, 5500);
         }
     </script>
