@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fenix Flight Simulator - Loading Screen</title>
+    <style>
+        /* Stylistyka inspirowana Microsoft Flight Simulator 2024 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        /* Ekran startowy (Rozwiązuje blokadę autoplay audio w przeglądarkach) */
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050506;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+
+        #start-overlay h1 {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            color: #d1d1d6;
+            margin-bottom: 20px;
+            animation: pulse 2.5s infinite;
+        }
+
+        #start-overlay p {
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: #636366;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Ekran Intro ("Fenix Studios presents") */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #intro-text {
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 1.5s ease-in-out, transform 2s ease-out;
+        }
+
+        #intro-text.fade-in {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Główny Ekran Ładowania */
+        #main-loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Pokaz slajdów w tle */
+        #slideshow-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2.5s ease-in-out, transform 8s linear;
+            transform: scale(1);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: scale(1.04);
+        }
+
+        /* Przyciemnienie tła dla czytelności interfejsu */
+        .overlay-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 100%);
+            z-index: 1;
+        }
+
+        /* Interfejs UI - Górny Lewy Róg */
+        .brand-corner {
+            position: absolute;
+            top: 40px;
+            left: 50px;
+            z-index: 5;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            transform: translateX(-30px);
+            opacity: 0;
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+        }
+
+        .brand-corner.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .brand-title {
+            font-size: 26px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #ffffff;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #aeaeae;
+            margin-top: 4px;
+        }
+
+        /* Interfejs UI - Dolna Sekcja (Ładowanie i Ciekawostki) */
+        .bottom-container {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            width: 100%;
+            padding: 0 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            z-index: 5;
+        }
+
+        /* Ciekawostki */
+        .trivia-box {
+            max-width: 600px;
+            background: rgba(10, 10, 12, 0.65);
+            padding: 20px 25px;
+            border-left: 3px solid #ffffff;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s;
+        }
+
+        .trivia-box.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .trivia-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #8e8e93;
+            margin-bottom: 6px;
+        }
+
+        .trivia-content {
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+            color: #f2f2f7;
+            min-height: 42px;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* Kółko ładowania (MSFS Style) */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(30px);
+            opacity: 0;
+            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
+        }
+
+        .loading-container.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #aeaeae;
+            animation: blink 2s infinite ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Popup Błędu (Zgodnie z życzeniem po 10 sekundach gry) */
+        #error-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #error-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .error-box {
+            background: #0d0d11;
+            border: 1px solid #2c2c35;
+            width: 90%;
+            max-width: 500px;
+            padding: 35px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+        }
+
+        #error-popup.show .error-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .error-header {
+            color: #ff453a;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .error-title {
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .error-msg {
+            font-size: 14px;
+            color: #9898ed;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .error-btn {
+            background: transparent;
+            border: 1px solid #48484a;
+            color: #ffffff;
+            padding: 12px 35px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .error-btn:hover {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="muzyka.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-overlay" onclick="startSequence()">
+        <h1>Fenix Flight Simulator</h1>
+        <p>Kliknij w dowolnym miejscu, aby uruchomić</p>
+    </div>
+
+    <div id="intro-screen">
+        <div id="intro-text">Fenix Studios presents</div>
+    </div>
+
+    <div id="main-loading-screen">
+        <div class="overlay-vignette"></div>
+        
+        <div id="slideshow-container">
+            <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=1920');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1517999144091-3d9dca6d1e43?q=80&w=1920');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1483450388369-9ed95738483c?q=80&w=1920');"></div>
+            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1556388158-158ea5ccacbd?q=80&w=1920');"></div>
+        </div>
+
+        <div class="brand-corner" id="ui-brand">
+            <div class="brand-title">Fenix Flight Simulator</div>
+            <div class="brand-subtitle">By: Fenix Studios 2026</div>
+        </div>
+
+        <div class="bottom-container">
+            <div class="trivia-box" id="ui-trivia">
+                <div class="trivia-label">Czy wiedziałeś? / Wskazówka</div>
+                <div class="trivia-content" id="trivia-text">Inicjalizacja systemów nawigacji satelitarnej GPS...</div>
+            </div>
+
+            <div class="loading-container" id="ui-loading">
+                <div class="spinner"></div>
+                <div class="loading-text">Wczytywanie</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="error-popup">
+        <div class="error-box">
+            <div class="error-header">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Połączenie przerwane
+            </div>
+            <div class="error-title">Błąd krytyczny aplikacji</div>
+            <div class="error-msg">kod błędu 102 - gra nie jest jeszcze przeznaczona do użytku.</div>
+            <button class="error-btn" onclick="window.close(); alert('Zamknij kartę przeglądarki, aby wyjść.');">Wyjdź do pulpitu</button>
+        </div>
+    </div>
+
+    <script>
+        // Lista 10 profesjonalnych ciekawostek/wskazówek lotniczych
+        const triviaList = [
+            "Najdłuższy komercyjny lot bez międzylądowania na świecie trwa ponad 18 godzin, łącząc Singapur z Nowym Jorkiem.",
+            "Przed rozpoczęciem kołowania zawsze upewnij się, że ustawione ciśnienie barometryczne (Altimeter) zgadza się z aktualnym komunikatem ATIS.",
+            "Legendarny samolot pasażerski Boeing 747 składa się z około 6 milionów pojedynczych części wyprodukowanych na całym świecie.",
+            "System lądowania instrumentalnego (ILS) precyzyjnie naprowadza samolot na oś pasa oraz ścieżkę zniżania, umożliwiając lądowanie w gęstej mgle.",
+            "Standardowa wysokość przelotowa dla większości odrzutowców pasażerskich to 33 000 do 41 000 stóp (FL330 - FL410).",
+            "Odpowiednie wytrymowanie steru wysokości odciąża wolant, pozwalając na stabilne utrzymywanie zadanego kąta wznoszenia lub zniżania.",
+            "Najwyżej położone komercyjne lotnisko cywilne znajduje się w Daocheng Yading (Chiny) na niebagatelnej wysokości 4411 metrów n.p.m.",
+            "Rejestratory parametrów lotu oraz rozmów w kokpicie (tzw. czarne skrzynki) w rzeczywistości mają kolor jaskrawopomarańczowy, aby łatwiej je odnaleźć.",
+            "Włączenie podgrzewania rurki Pitota (Pitot Heat) chroni przed zablokowaniem wskaźnika prędkości przy wlocie w strefę oblodzenia.",
+            "Podczas lądowania z bocznym wiatrem piloci stosują technikę 'trawersowania' (crab), podchodząc do pasa pod lekkim kątem bokiem do kierunku lotu."
+        ];
+
+        let currentSlide = 0;
+        let triviaIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const music = document.getElementById('bg-music');
+
+        // Sekwencja startowa wywoływana po kliknięciu użytkownika
+        function startSequence() {
+            // Ukryj nakładkę "Kliknij, aby zacząć"
+            const startOverlay = document.getElementById('start-overlay');
+            startOverlay.style.opacity = '0';
+            setTimeout(() => startOverlay.style.display = 'none', 1000);
+
+            // Spróbuj odtworzyć muzykę (zabezpieczone przed restrykcjami przeglądarek)
+            music.play().catch(error => console.log("Odtwarzanie audio zablokowane lub przerwane: ", error));
+
+            // Uruchom sekwencję Intro
+            setTimeout(() => {
+                const introScreen = document.getElementById('intro-screen');
+                const introText = document.getElementById('intro-text');
+                
+                introScreen.style.opacity = '1';
+                
+                // Po 1 sekundzie płynnie pokaż napis
+                setTimeout(() => {
+                    introText.classList.add('fade-in');
+                }, 1000);
+
+                // Napis wyświetla się przez 3 sekundy, potem znika (łącznie 4 sekundy)
+                setTimeout(() => {
+                    introText.classList.remove('fade-in');
+                    introScreen.style.opacity = '0';
+                }, 4000);
+
+                // Po 1 sekundzie od całkowitego zniknięcia intro (czyli w 6.5 sekundzie od startu) wchodzi główny ekran
+                setTimeout(() => {
+                    launchMainLoadingScreen();
+                }, 5500);
+
+            }, 200);
+        }
+
+        // Aktywacja właściwego ekranu ładowania MSFS
+        function launchMainLoadingScreen() {
+            const mainScreen = document.getElementById('main-loading-screen');
+            mainScreen.style.opacity = '1';
+
+            // Płynne wyjechanie elementów UI w stylu MSFS 2024
+            document.getElementById('ui-brand').classList.add('visible');
+            document.getElementById('ui-trivia').classList.add('visible');
+            document.getElementById('ui-loading').classList.add('visible');
+
+            // Uruchom pętle pokazu slajdów oraz rotacji ciekawostek
+            startSlideshow();
+            startTriviaRotation();
+
+            // Odliczanie 10 sekund do pojawienia się błędu (zgodnie z instrukcją)
+            setTimeout(() => {
+                document.getElementById('error-popup').classList.add('show');
+            }, 10000);
+        }
+
+        // Pętla pokazu slajdów (płynne przenikanie crossfade co 6 sekund)
+        function startSlideshow() {
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 6000);
+        }
+
+        // Pętla rotacji ciekawostek (co 5 sekund zmiana tekstu z efektem fade)
+        function startTriviaRotation() {
+            const triviaTextEl = document.getElementById('trivia-text');
+            // Pierwsza ciekawostka na start
+            triviaTextEl.textContent = triviaList[0];
+            
+            setInterval(() => {
+                triviaTextEl.style.opacity = '0';
+                setTimeout(() => {
+                    triviaIndex = (triviaIndex + 1) % triviaList.length;
+                    triviaTextEl.textContent = triviaList[triviaIndex];
+                    triviaTextEl.style.opacity = '1';
+                }, 500);
+            }, 5500);
+        }
+    </script>
+</body>
+</html>
