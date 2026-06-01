@@ -16,6 +16,12 @@
             user-select: none;
         }
 
+        :root {
+            --msfs-blue: #00a8ff;
+            --msfs-glow: rgba(0, 168, 255, 0.4);
+            --bg-glass: rgba(10, 11, 14, 0.75);
+        }
+
         body, html {
             width: 100%;
             height: 100%;
@@ -25,7 +31,7 @@
             color: #ffffff;
         }
 
-        /* Ekran startowy (Rozwiązuje blokadę autoplay audio w przeglądarkach) */
+        /* Ekran startowy */
         #start-overlay {
             position: fixed;
             top: 0;
@@ -65,7 +71,7 @@
             100% { opacity: 0.4; }
         }
 
-        /* Ekran Intro ("Fenix Studios presents") */
+        /* Ekran Intro */
         #intro-screen {
             position: fixed;
             top: 0;
@@ -142,18 +148,18 @@
             transform: scale(1.04);
         }
 
-        /* Przyciemnienie tła dla czytelności interfejsu */
+        /* Przyciemnienie tła */
         .overlay-vignette {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 100%);
+            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.85) 100%);
             z-index: 1;
         }
 
-        /* Interfejs UI - Górny Lewy Róg (Zaktualizowany układ z logo) */
+        /* Interfejs UI - Górny Lewy Róg */
         .brand-corner {
             position: absolute;
             top: 40px;
@@ -163,7 +169,6 @@
             transform: translateX(-30px);
             opacity: 0;
             transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
-            /* Flexbox do ustawienia logo obok tekstu */
             display: flex;
             align-items: center;
             gap: 15px; 
@@ -175,9 +180,9 @@
         }
 
         .brand-logo {
-            width: 65px; /* Szerokość logo, możesz dostosować */
+            width: 65px;
             height: auto;
-            filter: drop-shadow(0px 0px 8px rgba(0, 168, 255, 0.3)); /* Lekki blask pod logo */
+            filter: drop-shadow(0px 0px 10px rgba(0, 168, 255, 0.5));
         }
 
         .brand-text-container {
@@ -202,7 +207,7 @@
             margin-top: 4px;
         }
 
-        /* Interfejs UI - Dolna Sekcja (Ładowanie i Ciekawostki) */
+        /* Interfejs UI - Dolna Sekcja */
         .bottom-container {
             position: absolute;
             bottom: 50px;
@@ -215,14 +220,15 @@
             z-index: 5;
         }
 
-        /* Ciekawostki */
+        /* Ciekawostki z niebieskim akcentem */
         .trivia-box {
             max-width: 600px;
-            background: rgba(10, 10, 12, 0.65);
-            padding: 20px 25px;
-            border-left: 3px solid #ffffff;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: var(--bg-glass);
+            padding: 22px 25px;
+            border-left: 3px solid var(--msfs-blue);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.02);
             transform: translateY(30px);
             opacity: 0;
             transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.7s;
@@ -237,8 +243,10 @@
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 3px;
-            color: #8e8e93;
-            margin-bottom: 6px;
+            color: var(--msfs-blue);
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(0, 168, 255, 0.3);
         }
 
         .trivia-content {
@@ -251,15 +259,21 @@
             transition: opacity 0.5s ease-in-out;
         }
 
-        /* Kółko ładowania (MSFS Style) */
+        /* Kółko ładowania i procenty z niebieską poświatą */
         .loading-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             transform: translateY(30px);
             opacity: 0;
             transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
+            background: var(--bg-glass);
+            padding: 15px 25px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .loading-container.visible {
@@ -268,12 +282,13 @@
         }
 
         .spinner {
-            width: 44px;
-            height: 44px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top: 2px solid #ffffff;
+            width: 38px;
+            height: 38px;
+            border: 2px solid rgba(0, 168, 255, 0.1);
+            border-top: 2px solid var(--msfs-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            filter: drop-shadow(0px 0px 6px var(--msfs-glow));
         }
 
         .loading-text {
@@ -281,17 +296,40 @@
             text-transform: uppercase;
             letter-spacing: 4px;
             color: #aeaeae;
-            animation: blink 2s infinite ease-in-out;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        #loading-percent {
+            font-weight: 700;
+            color: var(--msfs-blue);
+            font-size: 13px;
+            text-shadow: 0 0 8px var(--msfs-glow);
+        }
+
+        /* Liniowy, minimalistyczny pasek postępu na dole ekranu */
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 6;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--msfs-blue), #00e5ff);
+            box-shadow: 0 0 10px var(--msfs-blue);
+            transition: width 1s linear;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
         }
 
         /* Popup Błędu */
@@ -357,7 +395,7 @@
 
         .error-msg {
             font-size: 14px;
-            color: #9898ed;
+            color: white;
             font-weight: 300;
             line-height: 1.6;
             margin-bottom: 30px;
@@ -402,11 +440,9 @@
         <div class="overlay-vignette"></div>
         
         <div id="slideshow-container">
-            <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1540962351504-03099e0a754b?q=80&w=1920');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1517999144091-3d9dca6d1e43?q=80&w=1920');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1483450388369-9ed95738483c?q=80&w=1920');"></div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1556388158-158ea5ccacbd?q=80&w=1920');"></div>
+            <div class="slide active" style="background-image: url('https://imgur.com/DVxyxcI.png');"></div>
+            <div class="slide" style="background-image: url('https://imgur.com/VJRHDrp.png');"></div>
+            <div class="slide" style="background-image: url('https://imgur.com/bsVGHVY.png');"></div>
         </div>
 
         <div class="brand-corner" id="ui-brand">
@@ -425,8 +461,12 @@
 
             <div class="loading-container" id="ui-loading">
                 <div class="spinner"></div>
-                <div class="loading-text">Wczytywanie</div>
+                <div class="loading-text">Wczytywanie <span id="loading-percent">0%</span></div>
             </div>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="progress-fill"></div>
         </div>
     </div>
 
@@ -434,7 +474,7 @@
         <div class="error-box">
             <div class="error-header">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Połączenie przerwane
+                Błąd gry
             </div>
             <div class="error-title">KOD BŁĘDU 102</div>
             <div class="error-msg">Gra nie jest jeszcze przeznaczona do użytku.</div>
@@ -460,41 +500,33 @@
         let triviaIndex = 0;
         const slides = document.querySelectorAll('.slide');
         const music = document.getElementById('bg-music');
+        
+        let progressInterval;
+        let currentPercent = 0;
 
         // Sekwencja startowa wywoływana po kliknięciu użytkownika
         function startSequence() {
-            // Ukryj nakładkę "Kliknij, aby zacząć"
             const startOverlay = document.getElementById('start-overlay');
             startOverlay.style.opacity = '0';
             setTimeout(() => startOverlay.style.display = 'none', 1000);
 
-            // Spróbuj odtworzyć muzykę
-            music.play().catch(error => console.log("Odtwarzanie audio zablokowane lub przerwane: ", error));
+            music.play().catch(error => console.log("Odtwarzanie audio zablokowane: ", error));
 
-            // ZMIANA: Timer na błąd rusza DOKŁADNIE w momencie kliknięcia
-            setTimeout(() => {
-                document.getElementById('error-popup').classList.add('show');
-            }, 60000);
-
-            // Uruchom sekwencję Intro
             setTimeout(() => {
                 const introScreen = document.getElementById('intro-screen');
                 const introText = document.getElementById('intro-text');
                 
                 introScreen.style.opacity = '1';
                 
-                // Po 1 sekundzie płynnie pokaż napis
                 setTimeout(() => {
                     introText.classList.add('fade-in');
                 }, 1000);
 
-                // Napis wyświetla się przez 3 sekundy, potem znika
                 setTimeout(() => {
                     introText.classList.remove('fade-in');
                     introScreen.style.opacity = '0';
                 }, 4000);
 
-                // Wejście głównego ekranu
                 setTimeout(() => {
                     launchMainLoadingScreen();
                 }, 5500);
@@ -507,17 +539,33 @@
             const mainScreen = document.getElementById('main-loading-screen');
             mainScreen.style.opacity = '1';
 
-            // Płynne wyjechanie elementów UI w stylu MSFS 2024
             document.getElementById('ui-brand').classList.add('visible');
             document.getElementById('ui-trivia').classList.add('visible');
             document.getElementById('ui-loading').classList.add('visible');
 
-            // Uruchom pętle pokazu slajdów oraz rotacji ciekawostek
             startSlideshow();
             startTriviaRotation();
+            startLoadingProgress();
         }
 
-        // Pętla pokazu slajdów (płynne przenikanie crossfade co 6 sekund)
+        // Licznik ładowania (20 sekund do osiągnięcia 20%)
+        function startLoadingProgress() {
+            const percentEl = document.getElementById('loading-percent');
+            const fillEl = document.getElementById('progress-fill');
+            
+            progressInterval = setInterval(() => {
+                currentPercent++;
+                percentEl.textContent = currentPercent + '%';
+                fillEl.style.width = currentPercent + '%';
+
+                if (currentPercent >= 20) {
+                    clearInterval(progressInterval);
+                    document.getElementById('error-popup').classList.add('show');
+                }
+            }, 1000);
+        }
+
+        // Pętla pokazu slajdów (co 6 sekund)
         function startSlideshow() {
             setInterval(() => {
                 slides[currentSlide].classList.remove('active');
@@ -526,10 +574,9 @@
             }, 6000);
         }
 
-        // Pętla rotacji ciekawostek (co 5 sekund zmiana tekstu z efektem fade)
+        // Pętla rotacji ciekawostek
         function startTriviaRotation() {
             const triviaTextEl = document.getElementById('trivia-text');
-            // Pierwsza ciekawostka na start
             triviaTextEl.textContent = triviaList[0];
             
             setInterval(() => {
